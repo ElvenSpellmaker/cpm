@@ -81,6 +81,7 @@
         flat: yes
       with_items:
         - "{{ log_result.stdout | from_json }}"
+      when : "lookup('config', 'DEFAULT_LOG_PATH') | length > 0"
 
     - name: Start CPM service & set to auto
       win_service:
@@ -124,7 +125,9 @@
         flat: yes
       with_items:
         - "{{ log_result.stdout | from_json }}"
+      when : "lookup('config', 'DEFAULT_LOG_PATH') | length > 0"
 
     - name: Rescue - Fail registration stage
       fail:
         msg: 'ERROR: Registration failed. For more info check {{ lookup("config", "DEFAULT_LOG_PATH") | dirname }}/cpm/{{ inventory_hostname }}_registration.log'
+      when : "lookup('config', 'DEFAULT_LOG_PATH') | length > 0"
