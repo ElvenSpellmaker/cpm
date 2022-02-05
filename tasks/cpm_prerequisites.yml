@@ -31,7 +31,7 @@
         flat: yes
       with_items:
         - "{{ log_result.stdout | from_json }}"
-      when : "lookup('config', 'DEFAULT_LOG_PATH') | default('') | length > 0"
+      when : "lookup('config', 'DEFAULT_LOG_PATH') | default('', true) | length > 0"
 
   rescue:
 
@@ -48,9 +48,9 @@
         flat: yes
       with_items:
         - "{{ log_result.stdout | from_json }}"
-      when : "lookup('config', 'DEFAULT_LOG_PATH') | default('') | length > 0"
+      when : "lookup('config', 'DEFAULT_LOG_PATH') | default('', true) | length > 0"
 
     - name: Rescue - Fail prerequisites stage
       fail:
         msg: 'ERROR: Pre Prerequisites failed. For more info check {{ lookup("config", "DEFAULT_LOG_PATH") | dirname }}/cpm/{{ inventory_hostname }}_prerequisites.log'
-      when : "lookup('config', 'DEFAULT_LOG_PATH') | default('') | length > 0"
+      when : "lookup('config', 'DEFAULT_LOG_PATH') | default('', true) | length > 0"
