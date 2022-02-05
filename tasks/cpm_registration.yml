@@ -110,7 +110,6 @@
       when: cpm_service_info.state == "running" and cpm_scanner_service_info.state == "running"
 
   rescue:
-
     - name: Rescue - Get log path for registration
       win_shell: |
         $Result = Get-Content "{{ cpm_registration_log }}"
@@ -131,3 +130,8 @@
       fail:
         msg: 'ERROR: Registration failed. For more info check {{ lookup("config", "DEFAULT_LOG_PATH") | dirname }}/cpm/{{ inventory_hostname }}_registration.log'
       when : "lookup('config', 'DEFAULT_LOG_PATH') | default('', true) | length > 0"
+
+    - name: Rescue - Fail registration stage
+      fail:
+        msg: 'ERROR: Registration failed. For more info check the logs on the remote machine.'
+      when : "lookup('config', 'DEFAULT_LOG_PATH') | default('', true) | length == 0"
