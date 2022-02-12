@@ -5,14 +5,15 @@ This Ansible Role will deploy and install CyberArk Central Policy Manager includ
 ## Requirements
 ------------
 - Windows 2016 installed on the remote host
-- WinRM open on port 5986 (**not 5985**) on the remote host 
+- WinRM open on port 5986 (**not 5985**) on the remote host
 - Pywinrm is installed on the workstation running the playbook
 - The workstation running the playbook must have network connectivity to the remote host
 - The remote host must have Network connectivity to the CyberArk vault and the repository server
   - 443 port outbound
-  - 1858 port outbound 
-- Administrator access to the remote host 
+  - 1858 port outbound
+- Administrator access to the remote host
 - CPM CD image
+- .NET 4.8
 
 
 ## Role Variables
@@ -21,11 +22,12 @@ These are the variables used in this playbook:
 ### Flow Variables
 Variable                         | Required     | Default                                   | Comments
 :--------------------------------|:-------------|:------------------------------------------|:---------
+cpm_extract                      | no           | false                                     | Copies zip from host to remote, extracts, sets up install dir
 cpm_prerequisites                | no           | false                                     | Install CPM pre requisites
 cpm_install                      | no           | false                                     | Install CPM
-cpm_hardening                    | no           | false                                     | Apply CPM hardening 
+cpm_hardening                    | no           | false                                     | Apply CPM hardening
 cpm_registration                 | no           | false                                     | Connect CPM to the Vault
-cpm_clean                        | no           | false                                     | N/A
+cpm_clean                        | no           | false                                     | Cleans install logs etc
 
 ### Deployment Variables
 Variable                         | Required     | Default                                              | Comments
@@ -36,7 +38,7 @@ vault_username                   | no           | **administrator**             
 vault_password                   | yes          | None                                                 | Vault password to perform registration
 secure_vault_password            | no           | None                                                 | Secure Vault password to perform registration
 dr_vault_ip                      | no           | None                                                 | Vault DR IP address to perform registration
-accept_eula                      | yes          | **"No"**                                             | Accepting EULA condition 
+accept_eula                      | yes          | **"No"**                                             | Accepting EULA condition
 cpm_zip_file_path                | yes          | None                                                 | CyberArk CPM installation Zip file package path
 cpm_installation_drive           | no           | **C:**                                               | Destination installation drive
 cpm_username                     | no           | **PasswordManager**                                  | Vault Component's username
@@ -45,8 +47,19 @@ cpm_username                     | no           | **PasswordManager**           
 None
 
 ## Usage
-The role consists of a number of different tasks which can be enabled or disabled for the particular
-run.
+The role consists of a number of different tasks some of which can be enabled
+or disabled for the particular run.
+
+`cpm_validateparameters` - Mandatory
+
+This task will validate which CPM steps have already occurred on the server to prevent repetition.
+
+`cpm_extract`
+This task will copy the CD Image from the Ansible host to the remote.
+
+`cpm_prerequisites`
+
+This task will run the CPM pre-requisites steps.
 
 `cpm_install`
 
@@ -59,10 +72,6 @@ This task will run the CPM hardening process.
 `cpm_registration`
 
 This task will perform registration with active Vault.
-
-`cpm_validateparameters`
-
-This task will validate which CPM steps have already occurred on the server to prevent repetition.
 
 `cpm_clean`
 
