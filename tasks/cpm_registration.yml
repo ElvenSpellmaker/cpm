@@ -110,25 +110,26 @@
       when: cpm_service_info.state == "running" and cpm_scanner_service_info.state == "running"
 
   rescue:
-    - name: Rescue - Get log path for registration
-      win_shell: |
-        $Result = Get-Content "{{ cpm_registration_log }}"
-        Write-Output $Result
-      register: log_result
-      no_log: true
+    - name: Rescue - Try to fetch remote logs onto the host
+      block:
+        - name: Rescue - Get log path for registration
+          win_shell: |
+            $Result = Get-Content "{{ cpm_registration_log }}"
+            Write-Output $Result
+          register: log_result
+          no_log: true
 
-    - name: Rescue - Fetch registration log from path
-      fetch:
-        src: '{{ item.logPath }}'
-        dest: '{{ lookup("config", "DEFAULT_LOG_PATH") | dirname }}/cpm/{{ inventory_hostname }}_registration.log'
-        flat: yes
-      with_items:
-        - "{{ log_result.stdout | from_json }}"
-      when : "lookup('config', 'DEFAULT_LOG_PATH') | default('', true) | length > 0"
+        - name: Rescue - Fetch registration log from path
+          fetch:
+            src: '{{ item.logPath }}'
+            dest: '{{ lookup("config", "DEFAULT_LOG_PATH") | dirname }}/cpm/{{ inventory_hostname }}_registration.log'
+            flat: yes
+          with_items:
+            - "{{ log_result.stdout | from_json }}"
 
-    - name: Rescue - Fail registration stage
-      fail:
-        msg: 'ERROR: Registration failed. For more info check {{ lookup("config", "DEFAULT_LOG_PATH") | dirname }}/cpm/{{ inventory_hostname }}_registration.log'
+        - name: Rescue - Fail registration stage
+          fail:
+            msg: 'ERROR: Registration failed. For more info check {{ lookup("config", "DEFAULT_LOG_PATH") | dirname }}/cpm/{{ inventory_hostname }}_registration.log'
       when : "lookup('config', 'DEFAULT_LOG_PATH') | default('', true) | length > 0"
 
     - name: Rescue - Fail registration stage
