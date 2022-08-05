@@ -10,6 +10,8 @@
         $xml = [xml](Get-Content $filePath)
         $step = $xml.SelectSingleNode("//Parameter[@Name = 'CPMInstallDirectory']")
         $step.Value = "{{ cpm_installation_path }}"
+        $step = $xml.SelectSingleNode("//Parameter[@Name = 'isUpgrade']")
+        $step.Value = "{{ isUpgrade }}"
         $xml.Save($filePath)
         exit 0
     }
